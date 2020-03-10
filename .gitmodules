@@ -1,0 +1,3 @@
+[submodule "embeddedproto"]
+	path = embeddedproto
+	url = git@bitbucket.org:embeddedams/embeddedproto.git
