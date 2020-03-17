@@ -20,6 +20,8 @@ demo::ReadBuffer read_buffer;
 int main(void)
 {
   SystemInit();
+  
+  uint32_t request_counter = 0;
 
   while (1)
   {
