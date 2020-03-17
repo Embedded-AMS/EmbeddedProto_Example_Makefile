@@ -6,9 +6,13 @@ PROJECT = example
 CC = arm-none-eabi-gcc
 CXX = arm-none-eabi-g++
 RM=rm -rf
+PROTOC = protoc
 
+# Define where the *.proto files are located.
+PROTO_DIR = proto
 
-# Define output directory in which to place the build results
+# Define output directory in which to place the build results.
+PROTO_GEN_DIR = src/generated
 OBJECT_DIR = build
 BIN_DIR = $(OBJECT_DIR)
 
@@ -19,7 +23,14 @@ INC_DIR = -Isrc \
           -Isrc/external/CMSIS/Device/ST/STM32F4xx/Include \
           -Isrc/external/STM32F4xx_HAL_Driver/Inc \
           -Isrc/generated \
-          -I../embeddedproto/src
+          -Iembeddedproto/src
+
+# Find all the proto files.
+# Extend this for subfolders.
+PROTO_FILES = $(wildcard $(PROTO_DIR)/*.proto)
+
+# Convert the names of the proto files to the name of the generated header files.
+PROTO_HDR := $(PROTO_FILES:%.proto=$(PROTO_GEN_DIR)/%.h) 
 
 
 # Define source and object files.
@@ -36,12 +47,16 @@ OBJS := $(OBJS:%.s=$(OBJECT_DIR)/%.o)
 OBJS := $(OBJS:%.S=$(OBJECT_DIR)/%.o)
 
 
-# These are the source files from the EmbeddedProto project
-EMBEDDED_PROTO_SRC := $(wildcard ../embeddedproto/src/*.cpp)
+# These are the source files from the EmbeddedProto project.
+# These are the files that support your messages.
+EMBEDDED_PROTO_DIR = $(shell pwd)/embeddedproto
+EMBEDDED_PROTO_SRC := $(wildcard ./embeddedproto/src/*.cpp)
 
-EMBEDDED_PROTO_OBJS := $(EMBEDDED_PROTO_SRC:%.cpp=%.o)
-EMBEDDED_PROTO_OBJS := $(EMBEDDED_PROTO_OBJS:../%=$(OBJECT_DIR)/%)
-
+EMBEDDED_PROTO_OBJS := $(EMBEDDED_PROTO_SRC:%.cpp=$(OBJECT_DIR)/%.o)
+########################
+# TODO
+#EMBEDDED_PROTO_OBJS := $(EMBEDDED_PROTO_OBJS:../%=$(OBJECT_DIR)/%)
+########################
 
 # Assembler, Compiler and Linker flags and linker script settings
 LINKER_FLAGS=-lm -mthumb -mhard-float -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -T$(LINK_SCRIPT) -static  -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group -specs=nano.specs -specs=nosys.specs  -Wl,-cref "-Wl,-Map=$(BIN_DIR)/${PROJECT}.map" -Wl,--defsym=malloc_getpagesize_P=0x1000
@@ -56,9 +71,13 @@ CXXCOMPILER_FLAGS=-std=c++14 -fno-threadsafe-statics -c -g -mcpu=cortex-m4 -mfpu
 # Build project
 # Major targets
 ###############
-.PHONY: all debug clean
+.PHONY: all generate debug clean
 
-all: debug
+all: generate debug
+
+generate: 
+	$(PROTOC) --plugin=protoc-gen-eams=$(EMBEDDED_PROTO_DIR)/protoc-gen-eams -I$(PROTO_DIR) --eams_out=$(PROTO_GEN_DIR) $(PROTO_DIR)/reply.proto
+	$(PROTOC) --plugin=protoc-gen-eams=$(EMBEDDED_PROTO_DIR)/protoc-gen-eams -I$(PROTO_DIR) --eams_out=$(PROTO_GEN_DIR) $(PROTO_DIR)/request.proto
 
 debug:
 	make buildelf
@@ -83,6 +102,9 @@ $(OBJECT_DIR)/src/main.o: src/main.cpp
 ##################
 # Implicit targets
 ##################
+
+# This rulle is used to generate the message source files based on the *.proto files.
+
 
 $(OBJECT_DIR)/%.o: %.c
 	$(shell mkdir -p $(dir $@))
