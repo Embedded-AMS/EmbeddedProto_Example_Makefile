@@ -41,7 +41,7 @@ namespace demo
     public:
       ReadBuffer()
         : index_(0),
-		  size_(0),
+          size_(0),
           bytes_{0U}
       {
 
@@ -62,7 +62,7 @@ namespace demo
       void set_demo_data(uint8_t* bytes, const uint32_t size)
       {
         bytes_ = bytes;
-    	size_ = size;
+        size_ = size;
       }
 
       bool peak(uint8_t& byte) const override
