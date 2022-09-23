@@ -53,10 +53,6 @@ EMBEDDED_PROTO_DIR = $(shell pwd)/embeddedproto
 EMBEDDED_PROTO_SRC := $(wildcard ./embeddedproto/src/*.cpp)
 
 EMBEDDED_PROTO_OBJS := $(EMBEDDED_PROTO_SRC:%.cpp=$(OBJECT_DIR)/%.o)
-########################
-# TODO
-#EMBEDDED_PROTO_OBJS := $(EMBEDDED_PROTO_OBJS:../%=$(OBJECT_DIR)/%)
-########################
 
 # Assembler, Compiler and Linker flags and linker script settings
 LINKER_FLAGS=-lm -mthumb -mhard-float -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -T$(LINK_SCRIPT) -static  -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group -specs=nano.specs -specs=nosys.specs  -Wl,-cref "-Wl,-Map=$(BIN_DIR)/${PROJECT}.map" -Wl,--defsym=malloc_getpagesize_P=0x1000
