@@ -65,7 +65,7 @@ namespace demo
         size_ = size;
       }
 
-      bool peak(uint8_t& byte) const override
+      bool peek(uint8_t& byte) const override
       {
         bool result = index_ < size_;
         if(result)
@@ -75,21 +75,27 @@ namespace demo
         return result;
       }
 
-      void advance() override
+      bool advance() override
       {
+        bool result = false;
         if(index_ < size_)
         {
           ++index_;
+          result = true;
         }
+        return result;
       }
 
-      void advance(const uint32_t N) override
+      bool advance(const uint32_t N) override
       {
+        bool result = false;
         index_ += N;
         if(index_ >= size_)
         {
           index_ = size_;
+          result = true;
         }
+        return result;
       }
 
       bool pop(uint8_t& byte) override

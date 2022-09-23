@@ -30,7 +30,7 @@ int main(void)
     request_msg.set_selection((request_counter & 0x01) ? demo::types::A
                                                        : demo::types::B);
 
-    if(request_msg.serialize(send_buffer))
+    if(::EmbeddedProto::Error::NO_ERRORS == request_msg.serialize(send_buffer))
     {
       // Serialization is successful. We can now use the buffer to send the data via a peripheral.
     }
@@ -61,19 +61,19 @@ int main(void)
     }
 
     // Obtain from the buffer the reply message.
-    if(reply_msg.deserialize(read_buffer))
+    if(::EmbeddedProto::Error::NO_ERRORS == reply_msg.deserialize(read_buffer))
     {
       // Now we can use it.
       switch(reply_msg.get_which_type())
       {
-        case demo::reply::id::A:
+        case demo::reply::FieldNumber::A:
         {
           // Do something with the data.
           uint32_t ans_a = reply_msg.a().x() + reply_msg.a().y() + reply_msg.a().z();
           break;
         }
 
-        case demo::reply::id::B:
+        case demo::reply::FieldNumber::B:
         {
           // Do something with the data.
           uint32_t ans_b = reply_msg.b().u() * reply_msg.b().v() * reply_msg.b().w();

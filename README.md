@@ -2,7 +2,7 @@
 ![alt text](https://embeddedproto.com/wp-content/uploads/2020/03/Embedded-Proto-e1583834233386.png "Embedded Proto Logo")
 
 
-Copyrights 2020 Embedded AMS B.V. Amsterdam, [www.EmbeddedAMS.nl](https://www.EmbeddedAMS.nl), [info@EmbeddedAMS.nl](mailto:info@EmbeddedAMS.nl)
+Copyrights 2020-2022 Embedded AMS B.V. Amsterdam, [www.EmbeddedAMS.nl](https://www.EmbeddedAMS.nl), [info@EmbeddedAMS.nl](mailto:info@EmbeddedAMS.nl)
 
 
 Looking for a more elaborate description of this example? Please visit: https://embeddedproto.com/how-to-set-up-a-project-with-embeddedproto-using-makefiles/
@@ -17,7 +17,7 @@ This is a simple demo of a makefile toolchain for a STM 32bit ARM microcontrolle
 1. Install STM32CubeIDE if you have not already.
 2. Install the dependencies required by Embedded Proto. They are listed [here](https://github.com/Embedded-AMS/EmbeddedProto).
 3. Checkout this example repository including the submodule of Embedded Proto: `git clone --recursive https://github.com/Embedded-AMS/EmbeddedProto_Example_Makefile.git`.
-4. Next setup the virtual environment for Embedded Proto by entering the folder and running the `./setup.sh` script.
+4. Next setup the virtual environment for Embedded Proto by entering the folder and running the `python setup.py` script.
 
 
 # Folder layout
