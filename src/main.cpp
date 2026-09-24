@@ -47,7 +47,7 @@ int main(void)
       uint8_t demo_response_A[RESPONS_SIZE_A] = {0x08, 0x01, 0x12, 0x06, 0x08, 0x0A, 0x10, 0x14,
           0x18, 0x1E};
 
-      read_buffer.set_demo_data(demo_response_A, RESPONS_SIZE_A);
+      read_buffer.set_demo_data(::EmbeddedProto::const_bytes_view{demo_response_A, RESPONS_SIZE_A});
     }
     else
     {
@@ -57,7 +57,7 @@ int main(void)
           0x00, 0x00, 0x00, 0x59, 0x40, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x69, 0x40,
         0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x72, 0x40};
 
-      read_buffer.set_demo_data(demo_response_B, RESPONS_SIZE_B);
+      read_buffer.set_demo_data(::EmbeddedProto::const_bytes_view{demo_response_B, RESPONS_SIZE_B});
     }
 
     // Obtain from the buffer the reply message.

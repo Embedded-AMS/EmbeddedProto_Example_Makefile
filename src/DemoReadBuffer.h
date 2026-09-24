@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 Embedded AMS B.V. - All Rights Reserved
+ *  Copyright (C) 2020-2026 Embedded AMS B.V. - All Rights Reserved
  *
  *  This file is part of Embedded Proto.
  *
@@ -31,8 +31,7 @@
 #ifndef _DEMO_READ_BUFFER_H_
 #define _DEMO_READ_BUFFER_H_
 
-#include <ReadBufferInterface.h>
-#include <stdio.h>
+#include <EmbeddedProto/ReadBufferInterface.h>
 
 namespace demo
 {
@@ -47,7 +46,7 @@ namespace demo
 
       }
 
-      virtual ~ReadBuffer() = default;
+      ~ReadBuffer() = default;
 
       uint32_t get_size() const override
       {
@@ -59,10 +58,11 @@ namespace demo
         return size_;
       }
 
-      void set_demo_data(uint8_t* bytes, const uint32_t size)
+      void set_demo_data(const ::EmbeddedProto::const_bytes_view& bytes)
       {
-        bytes_ = bytes;
-        size_ = size;
+        bytes_ = bytes.data;
+        size_ = bytes.size;
+        index_ = 0;
       }
 
       bool peek(uint8_t& byte) const override
@@ -71,6 +71,16 @@ namespace demo
         if(result)
         {
           byte = bytes_[index_];
+        }
+        return result;
+      }
+
+      bool peek(const uint32_t n_bytes, uint8_t& byte) const override
+      {
+        bool result = (index_ + n_bytes) < size_;
+        if(result)
+        {
+          byte = bytes_[index_ + n_bytes];
         }
         return result;
       }
@@ -113,7 +123,7 @@ namespace demo
 
       uint32_t index_;
       uint32_t size_;
-      uint8_t* bytes_;
+      const uint8_t* bytes_;
 
   };
 

@@ -6,7 +6,6 @@ PROJECT = example
 CC = arm-none-eabi-gcc
 CXX = arm-none-eabi-g++
 RM=rm -rf
-PROTOC = protoc
 
 # Define where the *.proto files are located.
 PROTO_DIR = proto
@@ -47,19 +46,18 @@ OBJS := $(OBJS:%.s=$(OBJECT_DIR)/%.o)
 OBJS := $(OBJS:%.S=$(OBJECT_DIR)/%.o)
 
 
-# These are the source files from the EmbeddedProto project.
-# These are the files that support your messages.
-EMBEDDED_PROTO_DIR = $(shell pwd)/embeddedproto
-EMBEDDED_PROTO_SRC := $(wildcard ./embeddedproto/src/*.cpp)
-
-EMBEDDED_PROTO_OBJS := $(EMBEDDED_PROTO_SRC:%.cpp=$(OBJECT_DIR)/%.o)
+# The Embedded Proto library is header only, there is nothing to compile besides your own code
+# and the generated headers. The embeddedproto command generates the code. It lives in the
+# virtual environment of the submodule, created by running install.py in that folder.
+EMBEDDED_PROTO_DIR = embeddedproto
+EMBEDDEDPROTO = $(EMBEDDED_PROTO_DIR)/venv/bin/embeddedproto
 
 # Assembler, Compiler and Linker flags and linker script settings
 LINKER_FLAGS=-lm -mthumb -mhard-float -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -T$(LINK_SCRIPT) -static  -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group -specs=nano.specs -specs=nosys.specs  -Wl,-cref "-Wl,-Map=$(BIN_DIR)/${PROJECT}.map" -Wl,--defsym=malloc_getpagesize_P=0x1000
 LINK_SCRIPT="src/external/stm32_flash.ld"
 ASSEMBLER_FLAGS=-c -g -O0 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mhard-float -specs=nano.specs -D"STM32F446xx"  -x assembler-with-cpp ${INC_DIR}
 COMPILER_FLAGS=-c -g -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -O0 -Wall -mthumb -mhard-float -specs=nano.specs -D"STM32F446xx" ${INC_DIR}
-CXXCOMPILER_FLAGS=-std=c++14 -fno-threadsafe-statics -c -g -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -O0 -Wall -mthumb -mhard-float -specs=nano.specs -fno-exceptions -fno-rtti -D"STM32F446xx" ${INC_DIR}
+CXXCOMPILER_FLAGS=-std=c++17 -fno-threadsafe-statics -c -g -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -O0 -Wall -mthumb -mhard-float -specs=nano.specs -fno-exceptions -fno-rtti -D"STM32F446xx" ${INC_DIR}
 
 
 
@@ -76,13 +74,11 @@ generate: $(PROTO_HDR)
 
 debug: buildelf
 
-buildelf: $(EMBEDDED_PROTO_OBJS) $(OBJS) 
-	$(CXX) -o "$(BIN_DIR)/${PROJECT}.elf" $(EMBEDDED_PROTO_OBJS) $(OBJS) $(LINKER_FLAGS)
+buildelf: $(OBJS)
+	$(CXX) -o "$(BIN_DIR)/${PROJECT}.elf" $(OBJS) $(LINKER_FLAGS)
 
 clean:
-	$(info sources: $(EMBEDDED_PROTO_OBJS) $(SRC))
-	$(info end)
-	$(RM) $(EMBEDDED_PROTO_OBJS) $(OBJS) "$(BIN_DIR)/${PROJECT}.elf" "$(BIN_DIR)/${PROJECT}.map"
+	$(RM) $(OBJS) "$(BIN_DIR)/${PROJECT}.elf" "$(BIN_DIR)/${PROJECT}.map"
 	$(RM) $(PROTO_GEN_DIR)
 
 
@@ -98,20 +94,16 @@ $(OBJECT_DIR)/src/main.o: src/main.cpp
 # Implicit targets
 ##################
 
-# This rulle is used to generate the message source files based on the *.proto files.
+# This rule is used to generate the message source files based on the *.proto files.
 $(PROTO_GEN_DIR)/%.h: %.proto
 	$(shell mkdir -p $(dir $@))
-	cd $(EMBEDDED_PROTO_DIR) && $(PROTOC) --plugin=protoc-gen-eams -I../$(PROTO_DIR) --eams_out=../$(PROTO_GEN_DIR) ../$<
+	$(EMBEDDEDPROTO) -I$(PROTO_DIR) --eams_out=$(PROTO_GEN_DIR) $<
 
 $(OBJECT_DIR)/%.o: %.c
 	$(shell mkdir -p $(dir $@))
 	$(CC) $(COMPILER_FLAGS) $< -o $@
 
 $(OBJECT_DIR)/%.o: %.cpp
-	$(shell mkdir -p $(dir $@))
-	$(CXX) $(CXXCOMPILER_FLAGS) $< -o $@
-
-$(OBJECT_DIR)/%.o: ../%.cpp
 	$(shell mkdir -p $(dir $@))
 	$(CXX) $(CXXCOMPILER_FLAGS) $< -o $@
 

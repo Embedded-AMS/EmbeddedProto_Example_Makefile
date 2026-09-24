@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2024 Embedded AMS B.V. - All Rights Reserved
+ *  Copyright (C) 2020-2026 Embedded AMS B.V. - All Rights Reserved
  *
  *  This file is part of Embedded Proto.
  *
@@ -31,8 +31,8 @@
 #ifndef _DEMO_WRITE_BUFFER_H_
 #define _DEMO_WRITE_BUFFER_H_
 
-#include <WriteBufferInterface.h>
-#include <stdio.h>
+#include <EmbeddedProto/WriteBufferInterface.h>
+#include <cstring>
 
 namespace demo
 {
@@ -47,7 +47,7 @@ namespace demo
 
       }
 
-      virtual ~WriteBuffer() = default;
+      ~WriteBuffer() = default;
 
       void clear() override
       {
@@ -66,7 +66,7 @@ namespace demo
 
       uint32_t get_available_size() const override
       {
-        return  - bytes_used_;
+        return BUFFER_SIZE - bytes_used_;
       }
 
       bool push(const uint8_t byte) override
@@ -80,13 +80,13 @@ namespace demo
         return result;
       }
 
-      bool push(const uint8_t* bytes, const uint32_t length) override
+      bool push(const ::EmbeddedProto::const_bytes_view& bytes) override
       {
-        bool result = BUFFER_SIZE >= (bytes_used_ + length);
+        bool result = BUFFER_SIZE >= (bytes_used_ + bytes.size);
         if(result)
         {
-          memcpy(bytes_ + bytes_used_, bytes, length);
-          bytes_used_ += length;
+          memcpy(bytes_ + bytes_used_, bytes.data, bytes.size);
+          bytes_used_ += bytes.size;
         }
         return result;
       }
